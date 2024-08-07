@@ -3,7 +3,7 @@ import BackHeader from '@/src/components/header/BackHeader';
 import { useGetMyCreatedToon } from '@/src/hooks/useGetMyCreatedToon';
 import { useGetMyParticipatedToon } from '@/src/hooks/useGetMyParticipatedToon';
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useDeleteToon } from '@/src/hooks/useDeleteToon';
 import { Toon } from '@/src/types/Toon';
@@ -31,13 +31,17 @@ export default function MyGallery() {
   }, [isLoggedIn]);
 
   const calculatePageRange = () => {
+    console.log('calstart');
     const currentSet = Math.ceil(pageNumber / maxButtons);
     const startPage = (currentSet - 1) * maxButtons + 1;
     const endPage = Math.min(currentSet * maxButtons, totalPages);
     return { startPage, endPage };
   };
 
-  const { startPage, endPage } = calculatePageRange();
+  const { startPage, endPage } = useMemo(
+    () => calculatePageRange(),
+    [pageNumber, totalPages],
+  );
 
   const { data: myCreatedToon, refetch: refetchCreated } = useGetMyCreatedToon(
     pageNumber,
@@ -97,7 +101,7 @@ export default function MyGallery() {
     } else {
       refetchParticipated();
     }
-  }, [pageNumber, tab, filterType, refetchCreated, refetchParticipated]);
+  }, [pageNumber, tab, filterType]);
 
   const createdToons = myCreatedToon?.toons || [];
   const participatedToons = myParticipatedToon?.toons || [];
